@@ -1,8 +1,8 @@
 .ipynb_checkpoints
 
 credentials.py
-dataset/
 __pycache__/
 .DS_Store
 
-!dataset/public
+/data/*
+!/data/public
