@@ -2,3 +2,7 @@
 
 credentials.py
 dataset/
+__pycache__/
+.DS_Store
+
+!dataset/public
