@@ -19,7 +19,7 @@
       <connection class='federated'>
         <named-connections>
           <named-connection caption='pillow_reviews_20210508191411' name='textscan.0v6zr9k1qef5d214b2rsm01y87zt'>
-            <connection class='textscan' directory='/Users/michaeldu/Programming/hooray/review_analysis/dataset' filename='pillow_reviews_20210508191411.csv' password='' server='' />
+            <connection class='textscan' directory='/Users/michaeldu/Programming/hooray/word-tree/data' filename='pillow_reviews_20210508191411.csv' password='' server='' />
           </named-connection>
         </named-connections>
         <_.fcp.ObjectModelEncapsulateLegacy.false...relation connection='textscan.0v6zr9k1qef5d214b2rsm01y87zt' name='pillow_reviews_20210508191411.csv' table='[pillow_reviews_20210508191411#csv]' type='table'>
