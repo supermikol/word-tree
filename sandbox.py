@@ -1,8 +1,9 @@
-from word_tree_api.wordtree import get_paths, read_files, generate_token, get_word_tree
+from itertools import tee
+from word_tree_api.wordtree import get_paths, read_files, WordTree
 
 
-# DATA_DIR = './data/bed_pillow_reviews/1-Beckham/'
-DATA_DIR = './data/bed_pillow_reviews/2-down alt/'
+DATA_DIR = './data/bed_pillow_reviews/1-Beckham/'
+# DATA_DIR = './data/bed_pillow_reviews/2-down alt/'
 all_files = get_paths(DATA_DIR)
 
 
@@ -17,8 +18,7 @@ prod_1_bad_reviews = prod_1_bad.reset_index()['Body']
 
 TEXT_TO_ANALYZE = prod_1_bad_reviews
 
-word_tree = get_word_tree(generate_token(TEXT_TO_ANALYZE))
+word_tree = WordTree(TEXT_TO_ANALYZE)
+word_tree.train_and_print()
+word_tree.train_and_print('this pillow', levels=1)
 
-
-results = word_tree(None, show_count=15, trailing=4, direction='forward', levels=4)
-print(results)

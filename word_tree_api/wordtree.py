@@ -1,15 +1,18 @@
 
-# import nltk
-# nltk.download('punkt') # for sent_tokenize
-# nltk.download('stopwords') 
-# nltk.download('wordnet') # for WordNetLemmatizer
-
+from typing import (
+  List,
+  Dict
+)
 import pandas as pd
 import numpy as np
 
 # Text preprocessing/analysis
 import re
-from nltk import word_tokenize, sent_tokenize, FreqDist
+from nltk import (
+  word_tokenize, 
+  sent_tokenize, 
+  FreqDist
+)
 from nltk.util import ngrams
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -18,7 +21,10 @@ from collections import Counter
 from itertools import groupby 
 
 
-from datetime import datetime, timedelta
+from datetime import (
+  datetime, 
+  timedelta
+)
 
 # import io
 import json
@@ -45,29 +51,31 @@ def read_files(files, separator=','):
     completed_df = pd.concat(processed_files, ignore_index=True)
     return completed_df
 
-def generate_token(reviews):
-    """Takes a list of documents and joins them together, before creating a giant lemmatized list of tokens"""
-    combined_strings = " ".join(list(reviews))
 
-    tokeniser = RegexpTokenizer("[A-Za-z\']+|\.")
-    tokens = tokeniser.tokenize(combined_strings)
-    
-    # Remove repeat
-    deduped_tokens = [i[0] for i in groupby(tokens)]
-    
-    lemmatiser = WordNetLemmatizer()
-    tokens_norm = [lemmatiser.lemmatize(t.lower(), "v") for t in deduped_tokens]
-    
-    return tokens_norm
-
-def get_word_tree(tokens):
+class WordTree:
     """
-    Takes a list of tokens and returns a function that takes an optional 
-    string which will be searched for for particular n-grams
+    Takes a list of reviews and returns an object that can be searched for n-grams frequency
     """
+    def __init__(self, reviews: List[str]):
+        self.tokens = self.generate_token(reviews)
+        self.word_tree = None
+        self.ngram_database = {}
 
-    #remove all grams starting with period
-    def _clean_grams(ngram_counter):
+    def generate_token(self, reviews) -> List[str]:
+        """Takes a list of documents and joins them together, before creating a giant lemmatized list of tokens"""
+        combined_strings = " ".join(list(reviews))
+        tokeniser = RegexpTokenizer("[A-Za-z\']+|\.")
+        tokens = tokeniser.tokenize(combined_strings)
+        # Remove repeat
+        deduped_tokens = [i[0] for i in groupby(tokens)]
+        
+        lemmatiser = WordNetLemmatizer()
+        tokens_norm = [lemmatiser.lemmatize(t.lower(), "v") for t in deduped_tokens]
+        
+        return tokens_norm
+
+    def _clean_grams(self, ngram_counter):
+        # remove all grams starting with period
         begins_with_period = []
         for gram in ngram_counter:
             if gram[0] == '.':
@@ -75,28 +83,37 @@ def get_word_tree(tokens):
         for gram in begins_with_period:
             del ngram_counter[gram]
 
-    def _word_tree(head=None, show_count=20, trailing=2, direction='forward', levels=0, indent=0):
+
+    def train_and_print(self, head=None, trailing_grams=2, direction='forward', show_count = 20, indent=0, levels=0):
+        if head==None:
+            head = []
         if type(head)==str:
             head = head.lower().split()
-        trailing_grams = trailing 
         if head != None:
             trailing_grams += len(head)
-        if head==None:
-            ngram_counter = Counter(ngrams(tokens, trailing_grams))
+        key_pattern = ((' ').join(head), trailing_grams, direction)
+        if key_pattern in self.ngram_database.keys():
+            ngram_counter = self.ngram_database[key_pattern]
         else:
-            if direction == 'forward':
-                ngram_counter = Counter([gram for gram in ngrams(tokens, trailing_grams) if gram[:len(head)] == tuple(head)])
-            elif direction == 'backward':
-                ngram_counter = Counter([gram for gram in ngrams(tokens, trailing_grams) if gram[-len(head):] == tuple(head)])
+            if len(head)==0:
+                ngram_counter = Counter(ngrams(self.tokens, trailing_grams))
             else:
-                ngram_counter = Counter([gram for gram in ngrams(tokens, trailing_grams) if gram[:len(head)] == tuple(head)])
+                if direction == 'forward':
+                    ngram_counter = Counter([gram for gram in ngrams(self.tokens, trailing_grams) if gram[:len(head)] == tuple(head)])
+                elif direction == 'backward':
+                    ngram_counter = Counter([gram for gram in ngrams(self.tokens, trailing_grams) if gram[-len(head):] == tuple(head)])
+                else:
+                    ngram_counter = Counter([gram for gram in ngrams(self.tokens, trailing_grams) if gram[:len(head)] == tuple(head)])
 
-        _clean_grams(ngram_counter)
-        
-        for (text, idx) in ngram_counter.most_common(show_count):
-            print(f"{'  '*indent}{idx} - {' '.join(text)}")
-            if levels > 0 and idx > 3:
-                _word_tree(text, show_count=3, trailing=2, direction=direction, levels=levels-1, indent=indent+1)
+        self._clean_grams(ngram_counter)
 
-    return _word_tree
-  
+        # self.ngram_database[key_pattern] = ngram_counter # will take up too much memory, so disabling; hit rates will likely be low
+        for (text, count) in ngram_counter.most_common(show_count):
+            print(f"{'  '*indent}{count} - {' '.join(text)}")
+            if levels > 0 and count >= 3:
+                self.train_and_print(text, show_count=3, trailing_grams=2, direction=direction, levels=levels-1, indent=indent+1)
+        return ngram_counter
+    
+    def __repr__(self):
+        ngrams_list = [i for i in self.ngram_database.keys()]
+        return 'Length: %d words \n ngrams: %s' % (len(self.tokens), ngrams_list)
