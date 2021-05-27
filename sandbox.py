@@ -18,7 +18,7 @@ prod_1_bad_reviews = prod_1_bad.reset_index()['Body']
 
 TEXT_TO_ANALYZE = prod_1_bad_reviews
 
-word_tree = WordTree(TEXT_TO_ANALYZE)
+word_tree = WordTree(TEXT_TO_ANALYZE) # takes list of documents/reviews
 word_tree.train_and_print()
 word_tree.train_and_print('this pillow', levels=1)
 
