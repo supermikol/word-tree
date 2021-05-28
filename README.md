@@ -8,4 +8,8 @@ If a virtual environment is necesary, first generate a new virtual environment w
 
 Run `pip install -r requirements.txt ` 
 
-
+```
+$ flask db init
+$ flask db migrate
+$ flask db upgrade
+```
