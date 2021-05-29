@@ -2,25 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-  <link rel="stylesheet" href="{{ url_for('static',     filename='css/template.css') }}">
-  <title>Hooray Template</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+  <title>{% block title %}{% endblock %}</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{{ url_for('static',     filename='css/semantic.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static',     filename='css/style.css') }}">
+
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1 class="logo">First Web App</h1>
-      <strong><nav>
-        <ul class="menu">
-          <li><a href="{{ url_for('index') }}">Home</a></li>
-        </ul>
-      </nav></strong>
+
+  <div class="ui fixed menu">
+    <div class="ui container">
+      <a href="{{ url_for('index') }}" class="header item">
+        <img class="logo" src="{{ url_for('static',     filename='assets/images/hooray_logo_icon.jpeg') }}">
+        Hooray Review Analysis
+      </a>
+      <a href="{{ url_for('index') }}" class="item">Home</a>
+      <div class="ui simple dropdown item">
+        Tools <i class="dropdown icon"></i>
+        <div class="menu">
+          <a class="item" href="#">Analysis</a>
+          <a class="item" href="#">Upload</a>
+        </div>
+      </div>
     </div>
-  </header>
+  </div>
+
   {% block content %}
   {% endblock %}
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+  <div class="ui vertical footer segment">
+    <div class="ui center aligned container">
+      <img src="{{ url_for('static',     filename='assets/images/hooray_logo_full.png') }}" class="ui centered small image">
+      <div class="ui horizontal small divided link list">
+        <a class="item" href="#">Site Map</a>
+        <a class="item" href="#">Contact Us</a>
+        <a class="item" href="#">Terms and Conditions</a>
+        <a class="item" href="#">Privacy Policy</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static',     filename='js/jquery-3.1.1.min.js') }}"></script>
+  <script src="{{ url_for('static',     filename='js/semantic.min.js') }}"></script>
+  <script src="{{ url_for('static',     filename='js/init.js') }}"></script>
+
 </body>
 </html>
