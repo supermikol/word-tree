@@ -44,6 +44,7 @@ def index():
 @app.route("/reviews/<product_id>", methods=['GET'])
 def get_reviews(product_id):
   reviews = Review.query.filter_by(product_id=product_id).all()
+  # print(type(reviews))
   return decode_reviews(reviews)
 
 @app.route("/<name>", methods=['GET', 'POST'])
