@@ -56,23 +56,11 @@ class WordTree:
     """
     Takes a list of reviews and returns an object that can be searched for n-grams frequency
     """
-    def __init__(self, reviews: List[str]):
-        self.tokens = self.generate_token(reviews)
+    def __init__(self, tokens: List[List[str]]):
+        # self.tokens = WordTree.generate_token(reviews)
+        self.tokens = tokens
         self.word_tree = None
         self.ngram_database = {}
-
-    def generate_token(self, reviews) -> List[str]:
-        """Takes a list of documents and joins them together, before creating a giant lemmatized list of tokens"""
-        combined_strings = " ".join(list(reviews))
-        tokeniser = RegexpTokenizer("[A-Za-z\']+|\.")
-        tokens = tokeniser.tokenize(combined_strings)
-        # Remove repeat
-        deduped_tokens = [i[0] for i in groupby(tokens)]
-        
-        lemmatiser = WordNetLemmatizer()
-        tokens_norm = [lemmatiser.lemmatize(t.lower(), "v") for t in deduped_tokens]
-        
-        return tokens_norm
 
     def _clean_grams(self, ngram_counter):
         # remove all grams starting with period
@@ -117,3 +105,18 @@ class WordTree:
     def __repr__(self):
         ngrams_list = [i for i in self.ngram_database.keys()]
         return 'Length: %d words \n ngrams: %s' % (len(self.tokens), ngrams_list)
+
+    @staticmethod
+    def generate_token(reviews) -> List[str]:
+        """Takes a string of text and creates a giant lemmatized list of tokens"""
+        # combined_strings = " ".join(list(reviews))
+        tokeniser = RegexpTokenizer("[A-Za-z\']+|\.")
+        # tokens = tokeniser.tokenize(combined_strings)
+        tokens = tokeniser.tokenize(reviews)
+        # Remove repeat
+        deduped_tokens = [i[0] for i in groupby(tokens)]
+        
+        lemmatiser = WordNetLemmatizer()
+        tokens_norm = [lemmatiser.lemmatize(t.lower(), "v") for t in deduped_tokens]
+        
+        return tokens_norm

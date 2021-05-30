@@ -1,4 +1,6 @@
 from flask import Flask, request, render_template, jsonify, g
+from flask_caching import Cache
+from sqlalchemy import sql
 from word_tree_api.wordtree import get_paths, read_files, WordTree
 
 from flask_sqlalchemy import SQLAlchemy
@@ -13,6 +15,11 @@ app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{POSTGRESQL_USER}:{POSTGRESQL_PASSWORD}@{db_host}:{db_port}/{db_name}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['DEBUG'] = True
+app.config['CACHE_TYPE'] = "SimpleCache"
+app.config['CACHE_DEFAULT_TIMEOUT'] = 2000
+
+cache = Cache(app)
 
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -28,10 +35,27 @@ def serializer(reviews):
   return {"response": review_object}
 
 def query_products():
-  # products = Review.query.with_entities(Review.product_id, Review.variation).distinct(Review.variation).group_by(Review.product_id).all()
-  products = db.session.execute('SELECT DISTINCT product_id, variation FROM reviews GROUP BY 1, 2;').all()
+  if cache.get('all_products') is None:
+    results = db.session.execute(
+      'SELECT DISTINCT product_id, variation FROM reviews GROUP BY 1, 2;'
+      ).all()
+    products = [[*p] for p in results]
+    cache.set('all_products', products)
+  else:
+    products = cache.get('all_products')
   return products
-  # return [pdt[0] for pdt in products]
+
+def query_reviews(product_id, variation):
+  if cache.get((product_id, variation)) is None:
+    sql_statement = f"SELECT content FROM reviews WHERE product_id='{product_id}' AND variation='{variation}';"
+    results = db.session.execute(sql_statement).all()
+    review_tokens = WordTree.generate_token((' ').join([p[0] for p in results]))
+    cache.set((product_id,variation), review_tokens)
+    print('caching')
+  else:
+    print('getting cache')
+    review_tokens = cache.get((product_id, variation))
+  return review_tokens
         
 @app.route("/")
 def index():
@@ -39,23 +63,23 @@ def index():
 
 @app.route("/wordtree/products", methods=['GET'])
 def get_products():
-  current_products = query_products()
-  print(current_products)
+  g.products = query_products()
   return render_template('products.html')
 
 @app.route("/wordtree/products/<product_id>", methods=['GET'])
 def get_reviews(product_id):
-  reviews = Review.query.filter_by(product_id=product_id).limit(10)
-  # reviews = Review.query.filter_by(product_id=product_id).with_entities(Review.product_id).limit(10)
-  # return jsonify(reviews)
-  # print(type(reviews))
-  return serializer(reviews)
+  variation = request.args.get('variation')
+  review_tokens = query_reviews(product_id, variation)
+  wordtree = WordTree(review_tokens)
+  ngram_counter = wordtree.train_and_print()
+  results = [[item[0],item[1]] for item in ngram_counter.most_common(5)]
+  return {'done': results}
+  # return {'response': results}
 
 @app.route("/<name>", methods=['GET', 'POST'])
 def greeting(name):
   username = request.args.get('username')
   return "Hello %s!! Your username is %s" % (name, username)
-
 
 
 if __name__ == "__main__":
