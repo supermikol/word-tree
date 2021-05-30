@@ -1,11 +1,10 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify, g
 from word_tree_api.wordtree import get_paths, read_files, WordTree
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from models import db, Review
 from credentials import POSTGRESQL_USER, POSTGRESQL_PASSWORD
-
 db_name = 'hooray_analysis_db'
 db_host = 'localhost'
 db_port = '5432'
@@ -24,28 +23,33 @@ def create_review():
     db.session.add(new_review)
     db.session.commit()
 
-def decode_review(review):
-  decoded_review = {
-    'review_id': review.review_id,
-    'content': review.content,
-    'meta_data': review.meta_data,
-    'product_id': review.product_id
-  }
-  return decoded_review
-
-def decode_reviews(reviews):
-  review_object = [decode_review(review) for review in reviews]
+def serializer(reviews):
+  review_object = [review.serialize for review in reviews]
   return {"response": review_object}
+
+def query_products():
+  # products = Review.query.with_entities(Review.product_id, Review.variation).distinct(Review.variation).group_by(Review.product_id).all()
+  products = db.session.execute('SELECT DISTINCT product_id, variation FROM reviews GROUP BY 1, 2;').all()
+  return products
+  # return [pdt[0] for pdt in products]
         
 @app.route("/")
 def index():
   return render_template('index.html')
 
-@app.route("/reviews/<product_id>", methods=['GET'])
+@app.route("/wordtree/products", methods=['GET'])
+def get_products():
+  current_products = query_products()
+  print(current_products)
+  return render_template('products.html')
+
+@app.route("/wordtree/products/<product_id>", methods=['GET'])
 def get_reviews(product_id):
-  reviews = Review.query.filter_by(product_id=product_id).all()
+  reviews = Review.query.filter_by(product_id=product_id).limit(10)
+  # reviews = Review.query.filter_by(product_id=product_id).with_entities(Review.product_id).limit(10)
+  # return jsonify(reviews)
   # print(type(reviews))
-  return decode_reviews(reviews)
+  return serializer(reviews)
 
 @app.route("/<name>", methods=['GET', 'POST'])
 def greeting(name):
