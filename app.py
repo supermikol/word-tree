@@ -59,7 +59,8 @@ def query_reviews(product_id, variation):
         
 @app.route("/")
 def index():
-  return render_template('index.html')
+  g.products = query_products()
+  return render_template('products.html')
 
 @app.route("/wordtree/products", methods=['GET'])
 def get_products():
@@ -69,13 +70,14 @@ def get_products():
 @app.route("/wordtree/products/<product_id>", methods=['GET'])
 def get_reviews(product_id):
   variation = request.args.get('variation')
+  head = request.args.get('head')
+  (g.product_id, g.variation) = (product_id, variation)
   review_tokens = query_reviews(product_id, variation)
   wordtree = WordTree(review_tokens)
-  ngram_counter = wordtree.train_and_print()
-  results = [[item[0],item[1]] for item in ngram_counter.most_common(5)]
-  return {'done': results}
-  # return {'response': results}
-
+  ngram_counter = wordtree.train_and_print(head)
+  g.results = [[item[0],item[1]] for item in ngram_counter]
+  return render_template('reviews.html')
+  
 @app.route("/<name>", methods=['GET', 'POST'])
 def greeting(name):
   username = request.args.get('username')

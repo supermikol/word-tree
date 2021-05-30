@@ -100,7 +100,7 @@ class WordTree:
             print(f"{'  '*indent}{count} - {' '.join(text)}")
             if levels > 0 and count >= 3:
                 self.train_and_print(text, show_count=3, trailing_grams=2, direction=direction, levels=levels-1, indent=indent+1)
-        return ngram_counter
+        return ngram_counter.most_common(show_count)
     
     def __repr__(self):
         ngrams_list = [i for i in self.ngram_database.keys()]

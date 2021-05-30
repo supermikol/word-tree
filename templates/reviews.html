@@ -1,0 +1,13 @@
+{% extends "template.html" %}
+{% block title %}Product: {{g.product_id}} - {{g.variation}}{% endblock %}
+{% block content %}
+<div class="ui main text container">
+  <h1 class="ui header">Text Review: {{g.product_id}} - {{g.variation}}</h1>
+  {% for item in g.results %}
+    {% set sentence = (' ').join(item[0]) %}
+    <div>{{item[1]}} - <a href={{url_for('get_reviews', product_id=g.product_id, variation=g.variation, head=sentence)}}>{{sentence}}</a> </div>
+  {% endfor %}
+  <p>This is a basic fixed menu template using fixed size containers.</p>
+  <p>A text container is used for the main container, which is useful for single column layouts</p>
+</div>
+{% endblock %}

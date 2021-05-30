@@ -2,13 +2,9 @@
 {% block title %}Hooray Products{% endblock %}
 {% block content %}
 <div class="ui main text container">
+  <h1 class="ui header">Hooray Products</h1>
   {% for pdt in g.products %}
     <div><a href="{{url_for('get_reviews', product_id=pdt[0], variation=pdt[1])}}">{{ pdt[0] }}, {{ pdt[1] }}</a></div>
   {% endfor %}
-  <h1 class="ui header">Semantic UI Fixed Template</h1>
-  <p>This is a basic fixed menu template using fixed size containers.</p>
-  <p>A text container is used for the main container, which is useful for single column layouts</p>
-  <img class="wireframe" src="assets/images/wireframe/media-paragraph.png">
-  <img class="wireframe" src="assets/images/wireframe/paragraph.png">
 </div>
 {% endblock %}
