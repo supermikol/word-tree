@@ -73,6 +73,8 @@ class WordTree:
 
 
     def train_and_print(self, head=None, trailing_grams=2, direction='forward', show_count = 20, indent=0, levels=0):
+        if levels==-1:
+            return []
         if head==None:
             head = []
         if type(head)==str:
@@ -96,11 +98,26 @@ class WordTree:
         self._clean_grams(ngram_counter)
 
         # self.ngram_database[key_pattern] = ngram_counter # will take up too much memory, so disabling; hit rates will likely be low
+        result = [
+            [
+                counter[1], 
+                counter[0], 
+                self.train_and_print(
+                    counter[0], 
+                    show_count=3,
+                    trailing_grams=2, 
+                    direction=direction, 
+                    levels=levels-1, 
+                    indent=indent+1
+                )
+            ] for counter in ngram_counter.most_common(show_count)
+        ]
+        return result
         for (text, count) in ngram_counter.most_common(show_count):
             print(f"{'  '*indent}{count} - {' '.join(text)}")
             if levels > 0 and count >= 3:
                 self.train_and_print(text, show_count=3, trailing_grams=2, direction=direction, levels=levels-1, indent=indent+1)
-        return ngram_counter.most_common(show_count)
+        # return ngram_counter.most_common(show_count)
     
     def __repr__(self):
         ngrams_list = [i for i in self.ngram_database.keys()]

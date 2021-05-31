@@ -3,8 +3,23 @@
 {% block content %}
 <div class="ui main text container">
   <h1 class="ui header">Hooray Products</h1>
-  {% for pdt in g.products %}
-    <div><a href="{{url_for('get_reviews', product_id=pdt[0], variation=pdt[1])}}">{{ pdt[0] }}, {{ pdt[1] }}</a></div>
-  {% endfor %}
+  <table class="ui celled table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Variation</th>
+        <th>Review Count</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pdt in g.products %}
+        <tr>
+          <td><a href="{{url_for('get_reviews', product_id=pdt[0])}}">{{ pdt[0] }}</a></td>
+          <td class="center aligned"><a href="{{url_for('get_reviews', product_id=pdt[0], variation=pdt[1])}}">{{ pdt[1] }}</a></td>
+          <td class="center aligned">{{pdt[2]}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}
