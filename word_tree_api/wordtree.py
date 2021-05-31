@@ -113,10 +113,10 @@ class WordTree:
             ] for counter in ngram_counter.most_common(show_count)
         ]
         return result
-        for (text, count) in ngram_counter.most_common(show_count):
-            print(f"{'  '*indent}{count} - {' '.join(text)}")
-            if levels > 0 and count >= 3:
-                self.train_and_print(text, show_count=3, trailing_grams=2, direction=direction, levels=levels-1, indent=indent+1)
+        # for (text, count) in ngram_counter.most_common(show_count):
+        #     print(f"{'  '*indent}{count} - {' '.join(text)}")
+        #     if levels > 0 and count >= 3:
+        #         self.train_and_print(text, show_count=3, trailing_grams=2, direction=direction, levels=levels-1, indent=indent+1)
         # return ngram_counter.most_common(show_count)
     
     def __repr__(self):
