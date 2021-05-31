@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, jsonify, g
 from flask_caching import Cache
-from sqlalchemy import sql
+from sqlalchemy import sql, func, desc
 from word_tree_api.wordtree import get_paths, read_files, WordTree
 
 from flask_sqlalchemy import SQLAlchemy
@@ -36,9 +36,14 @@ def serializer(reviews):
 
 def query_products():
   if cache.get('all_products') is None:
-    results = db.session.execute(
-      'SELECT DISTINCT product_id, variation, COUNT(review_id) review_count FROM reviews GROUP BY 1, 2 ORDER BY 1 ASC, 3 DESC;'
-      ).all()
+    results = (db.session.query(
+                                Review.product_id, 
+                                Review.variation, 
+                                func.count(Review.review_id).label('review_count')
+                                )
+                          .group_by(Review.product_id, Review.variation)
+                          .order_by(Review.product_id, desc('review_count'))
+                          .all())
     products = [[*p] for p in results]
     cache.set('all_products', products)
   else:
@@ -47,12 +52,18 @@ def query_products():
 
 def query_reviews(product_id, variation=None):
   if cache.get((product_id, variation)) is None:
-    variation_statement = ""
     if variation is not None:
-      variation_statement = f"AND variation='{variation}'"
-    sql_statement = f"SELECT content FROM reviews WHERE product_id='{product_id}' {variation_statement};"
-    print(sql_statement)
-    results = db.session.execute(sql_statement).all()
+      results = (db.session.query(
+                              Review.content
+                              )
+                            .filter(Review.product_id == product_id, Review.variation == variation)
+                            .all())
+    else:
+      results = (db.session.query(
+                              Review.content
+                              )
+                            .filter(Review.product_id == product_id)
+                            .all())
     review_tokens = WordTree.generate_token((' ').join([p[0] for p in results]))
     cache.set((product_id,variation), review_tokens)
     print('caching')
@@ -80,7 +91,7 @@ def get_reviews(product_id):
   wordtree = WordTree(review_tokens)
   wordtree_results = wordtree.train_and_print(head, levels=1)
   g.results = [[item[0],item[1], item[2]] for item in wordtree_results]
-  print(g.results)
+  # print(g.results)
   return render_template('reviews.html')
 
 if __name__ == "__main__":
