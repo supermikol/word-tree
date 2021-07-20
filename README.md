@@ -3,7 +3,7 @@ Word-tree Text Analysis for large sets of review-based text
 
 ## Pre-req
 *Dataset files*
-This repo does not include a dataset. For instructions on how to load CSV data to Postgres DB, please refer to the jupyter notebook titled `wordtree_analysis.ipynb`
+This repo does not include a dataset. For instructions on how to load CSV data to Postgres DB, please refer to the jupyter notebook titled `wordtree_tools.ipynb`
 
 Make sure current version of python is *3.6 or above*
 
@@ -17,7 +17,7 @@ If no venv is required, simply run `pip install -r requirements.txt `
 
 ### Setting up the Database
 
-Default DB is Postgres. For instructions on how to load CSV data to Postgres DB, please refer to the jupyter notebook titled `wordtree_analysis.ipynb`
+Default DB is Postgres. For instructions on how to load CSV data to Postgres DB, please refer to the jupyter notebook titled `wordtree_tools.ipynb`
 
 ### Create credentials
 In the root folder, create a file named `credentials.py` with the following values:
