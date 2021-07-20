@@ -1,7 +1,9 @@
-# word-tree
-word-tree text analysis for large sets of amazon reviews
+# Word-tree
+Word-tree Text Analysis for large sets of review-based text
+
 ## Pre-req
-Dataset files. This repo does not include a dataset
+*Dataset files*
+This repo does not include a dataset. For instructions on how to load CSV data to Postgres DB, please refer to the jupyter notebook titled `wordtree_analysis.ipynb`
 
 Make sure current version of python is *3.6 or above*
 
@@ -35,13 +37,14 @@ $ flask db upgrade
 ```
 
 Launch server
+
 `$ FLASK_ENV=development flask run`
 
 Visit `localhost:5000`
 
 
 ## Relaunching server
-Simply acticate the virtual envinronment and launch
+Simply activate the virtual envinronment and launch
 ```
 $ source venv/bin/activate
 $ FLASK_ENV=development flask run
