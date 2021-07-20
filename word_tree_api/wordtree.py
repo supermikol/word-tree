@@ -71,6 +71,13 @@ class WordTree:
         for gram in begins_with_period:
             del ngram_counter[gram]
 
+    def get_most_frequent(self, max_grams=5, show_count=8):
+        results = []
+        for counter_length in range(2,max_grams+1):
+            ngram_counter = Counter(ngrams(self.tokens, counter_length))
+            self._clean_grams(ngram_counter)
+            results.append(ngram_counter.most_common(show_count))
+        return results
 
     def train_and_print(self, head=None, trailing_grams=2, nested_trailing_grams=3, direction='forward', show_count = 20, indent=0, levels=0):
         if levels==-1:
@@ -87,37 +94,30 @@ class WordTree:
         else:
             if len(head)==0:
                 ngram_counter = Counter(ngrams(self.tokens, trailing_grams))
+                ngram_counter_backward = Counter(ngrams(self.tokens, trailing_grams))
             else:
-                if direction == 'forward':
-                    ngram_counter = Counter([gram for gram in ngrams(self.tokens, trailing_grams) if gram[:len(head)] == tuple(head)])
-                elif direction == 'backward':
-                    ngram_counter = Counter([gram for gram in ngrams(self.tokens, trailing_grams) if gram[-len(head):] == tuple(head)])
-                else:
-                    ngram_counter = Counter([gram for gram in ngrams(self.tokens, trailing_grams) if gram[:len(head)] == tuple(head)])
+                ngram_counter = Counter([gram for gram in ngrams(self.tokens, trailing_grams) if gram[:len(head)] == tuple(head)])
+                ngram_counter_backward = Counter([gram for gram in ngrams(self.tokens, trailing_grams) if gram[-len(head):] == tuple(head)])
 
         self._clean_grams(ngram_counter)
+        self._clean_grams(ngram_counter_backward)
 
         # self.ngram_database[key_pattern] = ngram_counter # will take up too much memory, so disabling; hit rates will likely be low
         result = [
             [
-                counter[1], 
-                counter[0], 
-                self.train_and_print(
-                    counter[0], 
-                    show_count=3,
-                    trailing_grams=nested_trailing_grams, 
-                    direction=direction, 
-                    levels=levels-1, 
-                    indent=indent+1
-                )
-            ] for counter in ngram_counter.most_common(show_count)
+                [
+                    counter[1],
+                    counter[0],
+                ] for counter in ngram_counter.most_common(show_count)
+            ],
+            [
+                [
+                    counter[1],
+                    counter[0],
+                ] for counter in ngram_counter_backward.most_common(show_count)
+            ]
         ]
         return result
-        # for (text, count) in ngram_counter.most_common(show_count):
-        #     print(f"{'  '*indent}{count} - {' '.join(text)}")
-        #     if levels > 0 and count >= 3:
-        #         self.train_and_print(text, show_count=3, trailing_grams=2, direction=direction, levels=levels-1, indent=indent+1)
-        # return ngram_counter.most_common(show_count)
     
     def __repr__(self):
         ngrams_list = [i for i in self.ngram_database.keys()]

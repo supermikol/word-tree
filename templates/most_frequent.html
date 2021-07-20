@@ -1,0 +1,30 @@
+{% extends "template.html" %}
+{% block title %}Product: {{g.product_id}} - {{g.variation}}{% endblock %}
+{% block content %}
+<div class="ui main text container">
+  <h1 class="ui header">Text Review: {{g.product_id}} - {{g.variation}}</h1>
+  <table class="ui celled compact structured table">
+    <thead>
+      <tr>
+        <th>长度</th>
+        <th>句子</th>
+        <th>次数</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for group in g.most_frequent %}
+        <tr>
+          <td rowspan="{{group|length + 1}}" class="center aligned">{{group[0][0]|length}}</td>
+        </tr>
+        {% for phrase in group %}
+          {% set sentence = (' ').join(phrase[0]) %}
+          <tr>
+            <td><a href={{url_for('get_reviews', product_id=g.product_id, variation=g.variation, head=sentence)}}&rating={{g.rating}}>{{sentence}}</a></td>
+            <td class="center aligned">{{phrase[1]}}</td>
+          </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
