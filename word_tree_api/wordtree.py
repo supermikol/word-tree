@@ -71,7 +71,7 @@ class WordTree:
         for gram in begins_with_period:
             del ngram_counter[gram]
 
-    def get_most_frequent(self, max_grams=5, show_count=8):
+    def get_most_frequent(self, max_grams=6, show_count=18):
         results = []
         for counter_length in range(2,max_grams+1):
             ngram_counter = Counter(ngrams(self.tokens, counter_length))
