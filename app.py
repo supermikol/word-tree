@@ -102,7 +102,7 @@ def get_reviews(product_id):
   (g.product_id, g.variation, g.rating) = (product_id, variation, (',').join(rating))
 
   if head is None:
-    g.most_frequent = wordtree.get_most_frequent()
+    g.most_frequent = wordtree.get_most_frequent(max_grams=6, show_count=18)
     return render_template('most_frequent.html')
 
   trailing = request.args.get('trailing')
