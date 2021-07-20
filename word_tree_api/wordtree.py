@@ -72,7 +72,7 @@ class WordTree:
             del ngram_counter[gram]
 
 
-    def train_and_print(self, head=None, trailing_grams=2, direction='forward', show_count = 20, indent=0, levels=0):
+    def train_and_print(self, head=None, trailing_grams=2, nested_trailing_grams=3, direction='forward', show_count = 20, indent=0, levels=0):
         if levels==-1:
             return []
         if head==None:
@@ -105,7 +105,7 @@ class WordTree:
                 self.train_and_print(
                     counter[0], 
                     show_count=3,
-                    trailing_grams=2, 
+                    trailing_grams=nested_trailing_grams, 
                     direction=direction, 
                     levels=levels-1, 
                     indent=indent+1

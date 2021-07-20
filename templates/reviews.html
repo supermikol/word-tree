@@ -20,13 +20,13 @@
         {% set sentence = (' ').join(item[1]) %}
         <tr>
           <td rowspan="{{item[2]|length + 1}}" class="center aligned">{{item[0]}}</td>
-          <td rowspan="{{item[2]|length + 1}}"><a href={{url_for('get_reviews', product_id=g.product_id, variation=g.variation, head=sentence)}}>{{sentence}}</a></td>
+          <td rowspan="{{item[2]|length + 1}}"><a href={{url_for('get_reviews', product_id=g.product_id, variation=g.variation, head=sentence)}}&rating={{g.rating}}>{{sentence}}</a></td>
         </tr>
         {% for nested in item[2] %}
           <tr>
             {% set nested_sentence = (' ').join(nested[1]) %}
             <td class="center aligned">{{nested[0]}}</td>
-            <td><a href={{url_for('get_reviews', product_id=g.product_id, variation=g.variation, head=nested_sentence)}}>{{nested_sentence}}</a></td>
+            <td><a href={{url_for('get_reviews', product_id=g.product_id, variation=g.variation, head=nested_sentence)}}&rating={{g.rating}}>{{nested_sentence}}</a></td>
           </tr>
         {% endfor %}
       {% endfor %}

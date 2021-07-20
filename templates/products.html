@@ -3,6 +3,26 @@
 {% block content %}
 <div class="ui main text container">
   <h1 class="ui header">Hooray Products</h1>
+  <div class="ui checkbox">
+    <input type="checkbox" class="rating-checkbox" name="rating" checked value="1">
+    <label>1 Star</label>
+  </div>
+  <div class="ui checkbox">
+    <input type="checkbox" class="rating-checkbox" name="rating" checked value="2">
+    <label>2 Star</label>
+  </div>
+  <div class="ui checkbox">
+    <input type="checkbox" class="rating-checkbox" name="rating" checked value="3">
+    <label>3 Star</label>
+  </div>
+  <div class="ui checkbox">
+    <input type="checkbox" class="rating-checkbox" name="rating" checked value="4">
+    <label>4 Star</label>
+  </div>
+  <div class="ui checkbox">
+    <input type="checkbox" class="rating-checkbox" name="rating" checked value="5">
+    <label>5 Star</label>
+  </div>
   <table class="ui celled table">
     <thead>
       <tr>
@@ -14,8 +34,8 @@
     <tbody>
       {% for pdt in g.products %}
         <tr>
-          <td><a href="{{url_for('get_reviews', product_id=pdt[0])}}">{{ pdt[0] }}</a></td>
-          <td class="center aligned"><a href="{{url_for('get_reviews', product_id=pdt[0], variation=pdt[1])}}">{{ pdt[1] }}</a></td>
+          <td><a class="product-link" href="{{url_for('get_reviews', product_id=pdt[0])}}?rating=1,2,3,4,5">{{ pdt[0] }}</a></td>
+          <td class="center aligned"><a class="product-link" href="{{url_for('get_reviews', product_id=pdt[0], variation=pdt[1])}}&rating=1,2,3,4,5">{{ pdt[1] }}</a></td>
           <td class="center aligned">{{pdt[2]}}</td>
         </tr>
       {% endfor %}

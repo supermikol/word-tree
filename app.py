@@ -6,9 +6,9 @@ from word_tree_api.wordtree import get_paths, read_files, WordTree
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from models import db, Review
-from credentials import POSTGRESQL_USER, POSTGRESQL_PASSWORD
-db_name = 'hooray_analysis_db'
-db_host = 'localhost'
+from credentials import POSTGRESQL_USER, POSTGRESQL_PASSWORD, POSTGRESQL_DB, POSTGRESQL_HOST
+db_name = POSTGRESQL_DB
+db_host = POSTGRESQL_HOST
 db_port = '5432'
 
 app = Flask(__name__)
@@ -50,26 +50,28 @@ def query_products():
     products = cache.get('all_products')
   return products
 
-def query_reviews(product_id, variation=None):
-  if cache.get((product_id, variation)) is None:
+def query_reviews(product_id, variation=None, rating=[1,2,3,4,5]):
+  string_rating = (',').join(map(str, rating))
+  if cache.get((product_id, variation, string_rating)) is None:
     if variation is not None:
       results = (db.session.query(
                               Review.content
                               )
-                            .filter(Review.product_id == product_id, Review.variation == variation)
+                            .filter(Review.product_id == product_id,
+                              Review.variation == variation,
+                              Review.product_rating.in_(rating))
                             .all())
     else:
       results = (db.session.query(
                               Review.content
                               )
-                            .filter(Review.product_id == product_id)
+                            .filter(Review.product_id == product_id,
+                              Review.product_rating.in_(rating))
                             .all())
     review_tokens = WordTree.generate_token((' ').join([p[0] for p in results]))
-    cache.set((product_id,variation), review_tokens)
-    print('caching')
+    cache.set((product_id,variation,string_rating), review_tokens)
   else:
-    print('getting cache')
-    review_tokens = cache.get((product_id, variation))
+    review_tokens = cache.get((product_id, variation, string_rating))
   return review_tokens
         
 @app.route("/")
@@ -85,13 +87,25 @@ def get_products():
 @app.route("/wordtree/products/<product_id>", methods=['GET'])
 def get_reviews(product_id):
   variation = request.args.get('variation')
+  trailing = request.args.get('trailing')
+  direction = request.args.get('direction')
+  nested_trailing = request.args.get('nested_trailing')
+  if trailing is None:
+    trailing = 3
+  if nested_trailing is None:
+    nested_trailing = 3
+  if direction is None:
+    direction='forward'
+  if type(request.args.get('rating')) == str:
+    rating = request.args.get('rating').split(',')
+  else:
+    rating = ['1,2,3,4,5']
   head = request.args.get('head')
-  (g.product_id, g.variation) = (product_id, variation)
-  review_tokens = query_reviews(product_id, variation)
+  (g.product_id, g.variation, g.rating) = (product_id, variation, (',').join(rating))
+  review_tokens = query_reviews(product_id, variation, rating)
   wordtree = WordTree(review_tokens)
-  wordtree_results = wordtree.train_and_print(head, levels=1)
+  wordtree_results = wordtree.train_and_print(head, direction=direction, trailing_grams=int(trailing), nested_trailing_grams=int(nested_trailing), levels=1)
   g.results = [[item[0],item[1], item[2]] for item in wordtree_results]
-  # print(g.results)
   return render_template('reviews.html')
 
 if __name__ == "__main__":
