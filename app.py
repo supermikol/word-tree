@@ -71,7 +71,7 @@ def query_reviews(product_id, variation=None, rating=[1,2,3,4,5]):
                             .filter(Review.product_id == product_id,
                               Review.product_rating.in_(rating))
                             .all())
-    review_tokens = WordTree.generate_token((' ').join([p[0] for p in results]))
+    review_tokens = WordTree.generate_token((' *EOL* ').join([p[0] for p in results]))
     cache.set((product_id,variation,string_rating), review_tokens)
   else:
     review_tokens = cache.get((product_id, variation, string_rating))
