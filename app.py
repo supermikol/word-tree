@@ -89,6 +89,7 @@ def get_products():
 
 @app.route("/wordtree/products/<product_id>", methods=['GET'])
 def get_reviews(product_id):
+  SHOW_COUNT = 45
   head = request.args.get('head')
   variation = request.args.get('variation')
   if type(request.args.get('rating')) == str:
@@ -102,7 +103,7 @@ def get_reviews(product_id):
   (g.product_id, g.variation, g.rating) = (product_id, variation, (',').join(rating))
 
   if head is None:
-    g.most_frequent = wordtree.get_most_frequent(max_grams=6, show_count=18)
+    g.most_frequent = wordtree.get_most_frequent(max_grams=6, show_count=SHOW_COUNT)
     return render_template('most_frequent.html')
 
   trailing = request.args.get('trailing')
@@ -120,7 +121,7 @@ def get_reviews(product_id):
     trailing=50
 
 
-  wordtree_results = wordtree.train_and_print(head, direction=direction, trailing_grams=int(trailing), nested_trailing_grams=int(nested_trailing), levels=1)
+  wordtree_results = wordtree.train_and_print(head, direction=direction, trailing_grams=int(trailing), nested_trailing_grams=int(nested_trailing), levels=1, show_count=SHOW_COUNT)
   g.results = list(itertools.zip_longest(wordtree_results[0],wordtree_results[1]))
   # print(g.results)
   # g.results = [[item[0],item[1], list(itertools.zip_longest(item[2], item[3]))] for item in wordtree_results]

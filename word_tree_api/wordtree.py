@@ -63,12 +63,14 @@ class WordTree:
         self.ngram_database = {}
 
     def _clean_grams(self, ngram_counter):
-        # remove all grams starting with period
-        begins_with_period = []
+        to_ignore_terms = ['eol']
+        to_delete = []
         for gram in ngram_counter:
-            if gram[0] == '.':
-                begins_with_period.append(gram)
-        for gram in begins_with_period:
+            if gram[0] == '.': # starts with '.'
+                to_delete.append(gram)
+            # if any(v in gram for v in to_ignore_terms): # cut after to ignore
+            #     to_delete.append(gram)
+        for gram in to_delete:
             del ngram_counter[gram]
 
     def get_most_frequent(self, max_grams=6, show_count=18):
